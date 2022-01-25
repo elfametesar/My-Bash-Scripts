@@ -13,19 +13,22 @@ help(){
 											 "text sorting is specified. If it is, then arguments " \
 											 "must come after the flag."
 }
+ 
 sort_number(){
 	num_array=("$@")
-	len=${#num_array[@]}
-	for (( digit=0; digit < 2**62; digit++ )); {
-		for num in ${num_array[@]}; {
-			(( 10#$num == digit )) && {
-				(( counter++ ))
-				{ $reverse; } && sorted="${num} $sorted" \
-							  || sorted+="${num} "
-			} 
-		(( counter == len )) && printf "${sorted[@]}\n" && exit
+	for (( index=0; index < ${#num_array[@]}; index++ )); {
+		for (( iter=0; iter < ${#num_array[@]}; iter++ )); {
+			(( ${num_array[index]} > ${num_array[iter]} )) && (( counter++ ))
 		}
+		sorted[counter]=${num_array[index]}
+		unset counter
 	}
+	{ $reverse; } && { mod="-"; start=1; end=${#sorted[@]}+1; }
+	for (( index=${start:-0}; index < ${end:-${#sorted[@]}}; index++ )); {
+		index_modified=$mod$index
+		printf "%b" "${sorted[$mod$index]} "
+	}
+	echo
 }
 
 sort_string(){
@@ -52,8 +55,7 @@ for _ in $@; {
 		-h|--help) help; exit;;
 		-r|--reverse) reverse=true;;
 		-t|--text) shift; sort_string "$@"; exit;;
-		*)
-			sort_number "$@";;
+		*) sort_number "$@"; exit;;
 	esac
 	shift
 }
