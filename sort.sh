@@ -1,7 +1,7 @@
 #!/bin/env bash
 
 reverse=false
-
+shopt -s extglob
 help(){
     printf "\n\033[1;31m%s \033[1;33m%s \033[0m%s\n\n" \
 			"Usage:" "sort" "{ options } { sort type } { data to be sorted }"
@@ -18,14 +18,25 @@ help(){
 											 "char, word, number etc.. Options such as reverse must come " \
 											 "before the data specifiers."
 }
- 
+#  	for (( index=0; index < ${#num_array[@]}; index++ )); {
+# 		for (( iter=0; iter < ${#num_array[@]}; iter++ )); {
+# 			(( ${num_array[index]} < 0 )) && compared=${num_array[index]/-+(0)/-} \
+# 				|| compared=${num_array[index]##+(0)}
+# 			(( ${num_array[iter]} < 0 )) && comparison_val=${num_array[iter]/-+(0)/-} \
+# 				|| comparison_val=${num_array[iter]##+(0)}
+# 			echo $compared $comparison_val
+# 			(( ${compared:-0} > ${comparison_val:-0} )) && (( counter++ ))
+# 		}
+# 		sorted[counter]=${num_array[index]} 
+# 		unset counter
+# 	}
 sort_number(){
 	num_array=("$@")
 	for (( index=0; index < ${#num_array[@]}; index++ )); {
 		for (( iter=0; iter < ${#num_array[@]}; iter++ )); {
-			(( ${num_array[index]} > ${num_array[iter]} )) && (( counter++ ))
+			[ ${num_array[index]} -gt ${num_array[iter]} ] && (( counter++ ))
 		}
-		sorted[counter]=${num_array[index]}
+		sorted[counter]=${num_array[index]} 
 		unset counter
 	}
 	{ $reverse; } && { mod="-"; start=1; end=${#sorted[@]}+1; }
