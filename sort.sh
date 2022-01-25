@@ -7,42 +7,34 @@ help(){
 			"Usage:" "sort" "{ options } { sort type } { data to be sorted }"
 	printf "\033[1;33m%s\033[1;0m%s\n:\n\033[1;33m%s\033[1;0m%s\n%s\n:\n\033[1;33m%s\033[1;0m%s\n%s\n:\n\033[1;33m%s\033[1;0m%s\n:\n\033[1;33m%s\033[1;0m%s\n%s:\n" \
 							"-r, --reverse:" "Reverses the order of sort process" \
-							"-c, --char:"	 "This flag compares every single character" \
+							"-c, --char:"	 "Compares every single character" \
 										  	 ":in a given string and sorts accordingly" \
-							"-w, --word:" 	 "This flag takes in each word and sorts" \
+							"-w, --word:" 	 "Takes in each word and sorts" \
 											 ":that word's letters amongst each other" \
-							"-n, --number:"  "Supports negative, positive and zero padded numbers" \
-							"-t, --text:"    "This flag compares words amongst each other" \
+							"-n, --number:"  "Number sorting, both positive and negative numbers" \
+							"-t, --text:"    "Compares words amongst each other" \
 											 ":and sorts accordingly"  | column -t -s ":"
 	printf "\n\n\033[1;31m%s%s%s\033[0m\n\n" "Arguments are expected after data type specifiers such as " \
 											 "char, word, number etc.. Options such as reverse must come " \
 											 "before the data specifiers."
 }
-#  	for (( index=0; index < ${#num_array[@]}; index++ )); {
-# 		for (( iter=0; iter < ${#num_array[@]}; iter++ )); {
-# 			(( ${num_array[index]} < 0 )) && compared=${num_array[index]/-+(0)/-} \
-# 				|| compared=${num_array[index]##+(0)}
-# 			(( ${num_array[iter]} < 0 )) && comparison_val=${num_array[iter]/-+(0)/-} \
-# 				|| comparison_val=${num_array[iter]##+(0)}
-# 			echo $compared $comparison_val
-# 			(( ${compared:-0} > ${comparison_val:-0} )) && (( counter++ ))
-# 		}
-# 		sorted[counter]=${num_array[index]} 
-# 		unset counter
-# 	}
+
 sort_number(){
 	num_array=("$@")
-	for (( index=0; index < ${#num_array[@]}; index++ )); {
-		for (( iter=0; iter < ${#num_array[@]}; iter++ )); {
-			[ ${num_array[index]} -gt ${num_array[iter]} ] && (( counter++ ))
+	len=${#num_array[@]}
+	for (( iter=0; iter < len-1; iter++ )); {
+		for (( index=0; index < len-1-iter; index++ )); {
+			if (( ${num_array[index]} > ${num_array[index+1]} )); then
+				temp=${num_array[index]}
+				num_array[index]=${num_array[index+1]}
+				num_array[index+1]=$temp
+			fi
 		}
-		sorted[counter]=${num_array[index]} 
-		unset counter
 	}
-	{ $reverse; } && { mod="-"; start=1; end=${#sorted[@]}+1; }
-	for (( index=${start:-0}; index < ${end:-${#sorted[@]}}; index++ )); {
+	{ $reverse; } && { mod="-"; start=1; end=${#num_array[@]}+1; }
+	for (( index=${start:-0}; index < ${end:-${#num_array[@]}}; index++ )); {
 		index_modified=${mod}${index}
-		printf "%b" "${sorted[${mod}${index}]} "
+		printf "%b" "${num_array[${mod}${index}]} "
 	}
 	echo
 }
