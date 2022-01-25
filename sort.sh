@@ -1,22 +1,31 @@
 #!/bin/env bash
 
 reverse=false
-shopt -s extglob
+
 help(){
-    printf "\n\033[1;31m%s \033[1;33m%s \033[0m%s\n\n" \
-			"Usage:" "sort" "{ options } { sort type } { data to be sorted }"
-	printf "\033[1;33m%s\033[1;0m%s\n:\n\033[1;33m%s\033[1;0m%s\n%s\n:\n\033[1;33m%s\033[1;0m%s\n%s\n:\n\033[1;33m%s\033[1;0m%s\n:\n\033[1;33m%s\033[1;0m%s\n%s:\n" \
-							"-r, --reverse:" "Reverses the order of sort process" \
-							"-c, --char:"	 "Compares every single character" \
-										  	 ":in a given string and sorts accordingly" \
-							"-w, --word:" 	 "Takes in each word and sorts" \
-											 ":that word's letters amongst each other" \
-							"-n, --number:"  "Number sorting, both positive and negative numbers" \
-							"-t, --text:"    "Compares words amongst each other" \
-											 ":and sorts accordingly"  | column -t -s ":"
-	printf "\n\n\033[1;31m%s%s%s\033[0m\n\n" "Arguments are expected after data type specifiers such as " \
-											 "char, word, number etc.. Options such as reverse must come " \
-											 "before the data specifiers."
+	while read; do
+		printf "%s\n" "$REPLY"
+	done << EOF
+Usage: sort { options } { sort type } { data to be sorted }
+
+ -r, --reverse Reverses the order of sort process
+
+ -c, --char    Compares every single character
+               in a given string and sorts accordingly
+
+ -w, --word    Takes in each word and sorts
+               that word's letters amongst each other
+
+ -n, --number  Number sorting, both positive and
+               negative numbers
+
+ -t, --text    Compares words amongst each other
+               and sorts accordingly
+
+Arguments are expected after data type specifiers such as char, \
+word, number etc.. Options such as reverse must come before the \
+data specifiers.
+EOF
 }
 
 sort_number(){
@@ -24,37 +33,46 @@ sort_number(){
 	len=${#num_array[@]}
 	for (( iter=0; iter < len-1; iter++ )); {
 		for (( index=0; index < len-1-iter; index++ )); {
-			if (( ${num_array[index]} > ${num_array[index+1]} )); then
-				temp=${num_array[index]}
-				num_array[index]=${num_array[index+1]}
-				num_array[index+1]=$temp
+			if { $reverse; }; then
+				(( ${num_array[index]} < ${num_array[index+1]} )) && {
+					temp=${num_array[index]}
+					num_array[index]=${num_array[index+1]}
+					num_array[index+1]=$temp
+				}
+			else
+				(( ${num_array[index]} > ${num_array[index+1]} )) && {
+					temp=${num_array[index]}
+					num_array[index]=${num_array[index+1]}
+					num_array[index+1]=$temp
+					}
 			fi
 		}
 	}
-	{ $reverse; } && { mod="-"; start=1; end=${#num_array[@]}+1; }
-	for (( index=${start:-0}; index < ${end:-${#num_array[@]}}; index++ )); {
-		index_modified=${mod}${index}
-		printf "%b" "${num_array[${mod}${index}]} "
-	}
+	printf "%s " "${num_array[@]}"
 	echo
 }
 
 sort_string(){
 	string_array=("$@")
-	for (( index=0; index < ${#string_array[@]}; index++ )); {
-		for (( iter=0; iter < ${#string_array[@]}; iter++ )); {
-			if [[ ${string_array[index]} > ${string_array[iter]} ]]; then
-				(( counter++ ))
+	len=${#string_array[@]}
+	for (( iter=0; iter < len-1; iter++ )); {
+		for (( index=0; index < len-1-iter; index++ )); {
+			if { $reverse; }; then
+				[[ ${string_array[index]} < ${string_array[index+1]} ]] && {
+					temp=${string_array[index]}
+					string_array[index]=${string_array[index+1]}
+					string_array[index+1]=$temp
+				}
+			else
+				[[ ${string_array[index]} > ${string_array[index+1]} ]] && {
+					temp=${string_array[index]}
+					string_array[index]=${string_array[index+1]}
+					string_array[index+1]=$temp
+					}
 			fi
 		}
-		sorted[counter]=${string_array[index]}
-		unset counter
 	}
-	{ $reverse; } && { mod="-"; start=1; end=${#sorted[@]}+1; }
-	for (( index=${start:-0}; index < ${end:-${#sorted[@]}}; index++ )); {
-		index_modified=${mod}${index}
-		printf "${sorted[${mod}${index}]} "
-	}
+	printf "%s " "${string_array[@]}"
 	echo
 }
 
