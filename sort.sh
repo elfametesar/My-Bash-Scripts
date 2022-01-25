@@ -5,17 +5,18 @@ reverse=false
 help(){
     printf "\n\033[1;31m%s \033[1;33m%s \033[0m%s\n\n" \
 			"Usage:" "sort" "{ options } { sort type } { data to be sorted }"
-	printf "\033[1;33m%s\033[1;0m%s\n:\n\033[1;33m%s\033[1;0m%s\n%s\n:\n\033[1;33m%s\033[1;0m%s\n%s\n:\n\033[1;33m%s\033[1;0m%s\n%s:\n" \
+	printf "\033[1;33m%s\033[1;0m%s\n:\n\033[1;33m%s\033[1;0m%s\n%s\n:\n\033[1;33m%s\033[1;0m%s\n%s\n:\n\033[1;33m%s\033[1;0m%s\n:\n\033[1;33m%s\033[1;0m%s\n%s:\n" \
 							"-r, --reverse:" "Reverses the order of sort process" \
 							"-c, --char:"	 "This flag compares every single character" \
 										  	 ":in a given string and sorts accordingly" \
 							"-w, --word:" 	 "This flag takes in each word and sorts" \
 											 ":that word's letters amongst each other" \
+							"-n, --number:"  "Supports negative, positive and zero padded numbers" \
 							"-t, --text:"    "This flag compares words amongst each other" \
 											 ":and sorts accordingly"  | column -t -s ":"
-	printf "\n\n\033[1;31m%s%s%s\033[0m\n\n" "Arguments are expected as the last parameter. If flags " \
-											 "such as char, word etc is specified then arguments must come " \
-											 "after the flag. Default sorting type is numeric. Flag isn't needed."
+	printf "\n\n\033[1;31m%s%s%s\033[0m\n\n" "Arguments are expected after data type specifiers such as " \
+											 "char, word, number etc.. Options such as reverse must come " \
+											 "before the data specifiers."
 }
  
 sort_number(){
@@ -91,7 +92,9 @@ for _ in $@; {
 		-t|--text) shift; sort_string "$@"; exit;;
 		-w|--word) shift; sort_word "$@"; exit;;
 		-c|--char) shift; sort_char "$@"; exit;;
-		*) sort_number "$@"; exit;;
+		-n|--number) shift; sort_number "$@"; exit;;
+		-*) printf "%s\n" "$1 parameter does not exist"; exit 1;;
+		*) printf "%s\n" "Data type needs to be specified"; exit 1;;
 	esac
 	shift
 }
