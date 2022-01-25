@@ -110,24 +110,32 @@ for _ in $@; {
 	case $1 in
 		-h|--help) help; exit;;
 		-r|--reverse) reverse=true;;
+		-f|--file)
+			shift
+			[[ -f $1 ]] && args=$(<$1) || \
+				{ printf "%s\n" "No file found"; exit 1; };;
 		-t|--text) 
 			shift
-			[[ -z $@ ]] && readarray  args || args=$@
+			[[ -z $args ]] &&  args=$@
+			[[ -z $args ]] && readarray args
 			sort_string "${args[@]}"
 			exit;;
 		-w|--word)
 			shift
-			[[ -z $@ ]] && readarray  args || args=$@
+			[[ -z $args ]] &&  args=$@
+			[[ -z $args ]] && readarray args
 			sort_word "${args[@]}"
 			exit;;
 		-c|--char)
 			shift
-			[[ -z $@ ]] && readarray  args || args=$@
+			[[ -z $args ]] &&  args=$@
+			[[ -z $args ]] && readarray args
 			sort_char "${args[@]}"
 			exit;;
 		-n|--number)
 			shift
-			[[ -z $@ ]] && readarray  args || args=$@
+			[[ -z $args ]] &&  args=$@
+			[[ -z $args ]] && readarray args
 			sort_number "${args[@]}"
 			exit;;
 		-*) printf "%s\n" "$1 parameter does not exist"; exit 1;;
