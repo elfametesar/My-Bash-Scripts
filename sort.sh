@@ -29,7 +29,7 @@ EOF
 }
 
 sort_number(){
-	num_array=("$@")
+	num_array=($@)
 	len=${#num_array[@]}
 	for (( iter=0; iter < len-1; iter++ )); {
 		for (( index=0; index < len-1-iter; index++ )); {
@@ -53,7 +53,7 @@ sort_number(){
 }
 
 sort_string(){
-	string_array=("$@")
+	string_array=($@)
 	len=${#string_array[@]}
 	for (( iter=0; iter < len-1; iter++ )); {
 		for (( index=0; index < len-1-iter; index++ )); {
@@ -77,7 +77,7 @@ sort_string(){
 }
 
 sort_char(){
-	char_array="$@"
+	char_array=$@
 	for char in {a..z}; {
 		while read -n1 letter; do
 			[[ ${letter,,} == $char ]] && {
@@ -90,7 +90,7 @@ sort_char(){
 }
 
 sort_word(){
-	word_array=("$@")
+	word_array=($@)
 	for word in ${word_array[@]}; {
 		for char in {a..z}; {
 			while read -n1 letter; do
@@ -110,14 +110,29 @@ for _ in $@; {
 	case $1 in
 		-h|--help) help; exit;;
 		-r|--reverse) reverse=true;;
-		-t|--text) shift; sort_string "$@"; exit;;
-		-w|--word) shift; sort_word "$@"; exit;;
-		-c|--char) shift; sort_char "$@"; exit;;
-		-n|--number) shift; sort_number "$@"; exit;;
+		-t|--text) 
+			shift
+			[[ -z $@ ]] && readarray  args || args=$@
+			sort_string "${args[@]}"
+			exit;;
+		-w|--word)
+			shift
+			[[ -z $@ ]] && readarray  args || args=$@
+			sort_word "${args[@]}"
+			exit;;
+		-c|--char)
+			shift
+			[[ -z $@ ]] && readarray  args || args=$@
+			sort_char "${args[@]}"
+			exit;;
+		-n|--number)
+			shift
+			[[ -z $@ ]] && readarray  args || args=$@
+			sort_number "${args[@]}"
+			exit;;
 		-*) printf "%s\n" "$1 parameter does not exist"; exit 1;;
 		*) printf "%s\n" "Data type needs to be specified"; exit 1;;
 	esac
 	shift
 }
 
-[[ -z $1 ]] && help
